@@ -1,7 +1,7 @@
 import networkx
 import pytest
 import pylint
-
+import argparse
 
 
 def assemble(i, o, k=21):
@@ -13,8 +13,8 @@ def assemble(i, o, k=21):
     """
     pass
 
-def read_fastq(seq):
-    with open(seq, mode='r') as file_in:
+def read_fastq(i):
+    with open(i, mode='r') as file_in:
         for line in file_in:
             yield next(file_in)
             next (file_in)
@@ -50,11 +50,24 @@ def build_kmer_dict(fastq, kmer_len):
             else:
                 print('Error')
     print(k_dict)
+    return k_dict
 
-build_kmer_dict(fastq=seq_iterate, kmer_len=3)           
+kmers_dict = build_kmer_dict(fastq=seq_iterate, kmer_len=3)
+print(kmers_dict)
+def build_graph(kmer_dict):
+    graphe =networkx.DiGraph()
+    for ks in kmer_dict.keys():
+        graphe.add_edge(ks[:-1],ks[1:], weight=kmer_dict[ks])
+        return graphe
+graphe_result =build_graph(kmers_dict)    
+   
+def args():
+    parser = argparse.ArgumentParser(description='Kmers Builder') 
+    parser.add_argument('-i', help='fichier fastq single end')
+    parser.add_argument('-k', help='taille des kmer (optionnel - default 21)')
+    args = parser.parse_args()
     
-    
-
+args()
 
 
 
