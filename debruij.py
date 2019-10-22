@@ -20,18 +20,9 @@ def read_fastq(seq):
             next (file_in)
             next (file_in)
 
-r = read_fastq('data/eva71_two_reads.fq')
-for i in r:
-    print(i)
+seq_iterate = read_fastq('data/eva71_two_reads.fq')
+
     
-    
-
-
-
-
-seq = read_fastq('data/eva71_two_reads.fq')
-print(seq)
-
 
 def cut_kmer(seq, k=21) : 
      
@@ -44,9 +35,25 @@ def cut_kmer(seq, k=21) :
         kmers.append(seq[i:i+k])
 
     return kmers
+
+
     
-def build_kmer_dict():
-    pass
+def build_kmer_dict(fastq, kmer_len):
+    
+    k_dict ={}
+    for one_seq in fastq:
+        for one_kmer in cut_kmer(one_seq, kmer_len):
+            if one_kmer not in k_dict.keys():
+                k_dict[one_kmer] = 1
+            elif one_kmer in k_dict.keys():
+                k_dict[one_kmer] = k_dict[one_kmer] +1
+            else:
+                print('Error')
+    print(k_dict)
+
+build_kmer_dict(fastq=seq_iterate, kmer_len=3)           
+    
+    
 
 
 
