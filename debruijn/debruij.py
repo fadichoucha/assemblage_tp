@@ -1,6 +1,4 @@
 import networkx
-import pytest
-import pylint
 import argparse
 
 
@@ -14,9 +12,6 @@ def read_fastq(i):
             yield next(file_in)
             next (file_in)
             next (file_in)
-
-#  seq_iterate = read_fastq('data/eva71_hundred_reads.fq')
-
 
     
 def cut_kmer(seq, k=21) : 
@@ -45,8 +40,8 @@ def build_kmer_dict(fastq, kmers_len):
                 k_dict[one_kmer] += 1
     return k_dict
 
-kmers_dict = build_kmer_dict(fastq='/home/fadi/git/assemblage_tp/data/eva71_hundred_reads.fq', kmers_len=21)
-print(len(kmers_dict))
+kmers_dict = build_kmer_dict(fastq='../data/eva71_plus_perfect.fq', kmers_len=21)
+print("kmers_dict: ", len(kmers_dict))
 
 
 def build_graph(kmer_dict):
@@ -58,7 +53,7 @@ def build_graph(kmer_dict):
 graphe_result =build_graph(kmers_dict)    
  
 
-print(len(graphe_result.nodes()))
+print("graphe_result nodes: ", len(graphe_result.nodes()))
 
 def get_starting_nodes(graphe):
     starting_nodes_list = []
@@ -68,8 +63,8 @@ def get_starting_nodes(graphe):
             starting_nodes_list.append(start_node)
     return starting_nodes_list        
     
-x = get_starting_nodes(graphe_result)
-print(len(x))
+starting_nodes_list = get_starting_nodes(graphe_result)
+print("starting_nodes_list: ", len(starting_nodes_list))
 
 def get_sink_nodes(graphe):
     sink_nodes_list = []
@@ -78,14 +73,45 @@ def get_sink_nodes(graphe):
             sink_nodes_list.append(sink_node)
     return sink_nodes_list
 
-y = get_sink_nodes(graphe_result)
-print(len(y))
+sink_nodes_list = get_sink_nodes(graphe_result)
+print("sink_nodes_list: ",len(sink_nodes_list))
  
-def get_contigs(graphe, inputs, outputs):
-    pass
+def get_contigs(graph, inputs, outputs):
+    contigs = []
+    for start_node in inputs:
+        for sink_node in outputs:
+            all_paths = networkx.algorithms.simple_paths.all_simple_paths(graph, start_node, sink_node)
+            for one_path in all_paths:
+                 contig = one_path[0] 
+                 for cont in range(1, len(one_path)):
+                     contig = contig + one_path[cont][-1]
+                 # contigs in form of tuple    
+                 contig= (contig, len(contig))
+                 contigs.append(contig)
+    return contigs
+
+get_contigs(graphe_result, starting_nodes_list, sink_nodes_list)
+print(get_contigs)
+
+
 
 def save_contigs():
-    
+    pass
+
+def solve_bubble():
+    pass
+
+
+def simplify_bubbles():
+    pass
+
+
+def solve_entry_tips():
+    pass
+
+
+def solve_out_tips():
+    pass
 
 
 def args():
@@ -97,16 +123,3 @@ def args():
 args()
 
 
-"""
-
-def read_fastq_2(seq):
-    sequences=[]
-    with open(seq, mode='r') as fasta:
-        sequs = fasta.readlines()
-    x = 1
-    for i in range(int(len(sequs)/4)):
-        sequences.append(sequs[x].replace('\n', ''))
-        x += 4
-    return sequences    
-
-"""
