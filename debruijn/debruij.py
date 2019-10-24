@@ -1,6 +1,8 @@
 import networkx
 import argparse
 from networkx.algorithms.simple_paths import all_simple_paths
+import os
+import statistics
 
 
 def read_fastq(i):
@@ -93,7 +95,18 @@ def get_contigs(graph, inputs, outputs):
 get_contigs(graphe_result, starting_nodes_list, sink_nodes_list)
 print("Contigs are constructed")
 
+def fill(list_of_contigs, width=80):
+    return os.linesep.join(list_of_contigs[i:i+width] for i in range(0, len(list_of_contigs), width))
 
+def save_contigs(contigs, output):
+    with open(output, mode="w") as _myfile:
+        for i in range(len(contigs)):
+            _myfile.write(">contig_{} len={}\n".format(i, contigs[i][1]))
+            _myfile.write(fill(contigs[i][0]) + "\n")
+            
+
+def std(val_list):
+    return statistics.stdev(val_list)
 
 def save_contigs():
     pass
