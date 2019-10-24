@@ -1,6 +1,6 @@
 import networkx
 import argparse
-
+from networkx.algorithms.simple_paths import all_simple_paths
 
 
 def read_fastq(i):
@@ -80,18 +80,18 @@ def get_contigs(graph, inputs, outputs):
     contigs = []
     for start_node in inputs:
         for sink_node in outputs:
-            all_paths = networkx.algorithms.simple_paths.all_simple_paths(graph, start_node, sink_node)
+            all_paths = all_simple_paths(graph, start_node, sink_node)
             for one_path in all_paths:
                  contig = one_path[0] 
                  for cont in range(1, len(one_path)):
+                     #store contig in tuple        
                      contig = contig + one_path[cont][-1]
-                 # contigs in form of tuple    
-                 contig= (contig, len(contig))
-                 contigs.append(contig)
+                     tuple_temp = (contig, cont)
+                     contigs.append(tuple_temp)
     return contigs
 
 get_contigs(graphe_result, starting_nodes_list, sink_nodes_list)
-print(get_contigs)
+print("Contigs are constructed")
 
 
 
