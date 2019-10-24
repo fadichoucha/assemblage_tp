@@ -1,6 +1,7 @@
 import networkx
 import argparse
 from networkx.algorithms.simple_paths import all_simple_paths
+import random
 import os
 import statistics
 
@@ -103,14 +104,57 @@ def save_contigs(contigs, output):
         for i in range(len(contigs)):
             _myfile.write(">contig_{} len={}\n".format(i, contigs[i][1]))
             _myfile.write(fill(contigs[i][0]) + "\n")
-            
+    print("Contigs are saved....")        
 
 def std(val_list):
     return statistics.stdev(val_list)
 
-def save_contigs():
-    pass
+def path_average_weight(graph, path_to_graph):
+    weights = []
+    for _, _, e in graph.subgraph(path_to_graph).edges(data=True):        
+        means = statistics.mean(
+                weights.append(e['weight'])
+                )
+    print("The average of weight for path are calculated")    
+    return means  
 
+def remove_paths(graph, paths, delete_entry_node=False, delete_sink_node=False):
+    for i in range(len(paths)):
+        node_to_remove = list(paths[i])
+        if not delete_entry_node:
+            node_to_remove = node_to_remove[1:]
+        if not delete_sink_node:
+            node_to_remove = node_to_remove[:-1]
+        for n in node_to_remove:
+            graph.remove_node(n)
+        return graph
+    print("Paths are removed")
+
+
+def select_best_path(graph, paths, lengths, weights, entry_node=False, sink_node=False):
+
+    random.seed(9001)
+    higher_weights =[]
+    for it, w in enumerate(weights):
+        if w == max(weights):
+            higher_weights.append(it)
+    higher_len_w = []
+    for i, x in enumerate(lengths):
+        if i in higher_weights:
+            higher_len_w.append(x)
+    higher_indexs = []
+    for h in higher_indexs:
+        if lengths[h] == max(higher_len_w):
+            higher_indexs.append(h)
+    best_path = random.choice(higher_indexs)
+    path_temp = paths[:best_path]+paths[(best_path+1):]
+    graph = remove_paths(
+            graph, path_temp, entry_node, sink_node
+            ) 
+    print("Best graph is returned")       
+    return graph    
+       
+    
 def solve_bubble():
     pass
 
@@ -127,12 +171,23 @@ def solve_out_tips():
     pass
 
 
-def args():
-    parser = argparse.ArgumentParser(description='Kmers Builder') 
-    parser.add_argument('-i', help='fichier fastq single end')
-    parser.add_argument('-k', help='taille des kmer (optionnel - default 21)')
+
+def main():
+    parser = argparse.ArgumentParser(description='Bruijn graph _ assembly')
+    parser.add_argument('-i', metavar='FASTQ', type=str, help='File FASTQ', required=True)
+    parser.add_argument('-k', metavar='Kmer', type=int, help='Kmer size', default='21')
+    parser.add_argument('-o', metavar='Confiq', type=str, help='Contig file', required=True)
     args = parser.parse_args()
- 
-args()
+    i = args.i
+    k = args.k
+    contig_file = args.o
+    graph = build_graph(build_kmer_dict(i, k))
+    graph = simplify_bubbles(graph)
+    graph = solve_entry_tips(graph, get_starting_nodes(graph))
+    graph = solve_out_tips(graph, get_sink_nodes(graph))
+    tupple = get_contigs(graph, get_starting_nodes(graph), get_sink_nodes(graph))
+    save_contigs(tupple, contig_file)
 
 
+if __name__ == '__main__':
+    main()
